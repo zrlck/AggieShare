@@ -7,7 +7,7 @@ import Image from "next/image"
 
 interface CloudRevealProps {
   children: React.ReactNode
-  customImagePath?: string // New prop to accept a custom image path
+  customImagePath?: string
 }
 
 export default function CloudReveal({ children, customImagePath }: CloudRevealProps) {
@@ -64,9 +64,25 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
           >
             {/* Simplified background */}
             <div className="absolute inset-0 bg-gradient-to-b from-blue-200 to-blue-300">
-              {/* Reduced number of background clouds */}
-              <div className="absolute top-[15%] left-[10%] w-24 h-16 bg-white rounded-full opacity-70 blur-sm"></div>
-              <div className="absolute top-[25%] right-[15%] w-32 h-20 bg-white rounded-full opacity-70 blur-sm"></div>
+              {/* Replaced background clouds with chillcloud.png */}
+              <div className="absolute top-[15%] left-[10%] w-32 h-32">
+                <Image
+                  src="/chillcloud.png"
+                  alt="Chill Cloud"
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-contain opacity-70"
+                />
+              </div>
+              <div className="absolute top-[25%] right-[15%] w-40 h-40">
+                <Image
+                  src="/chillcloud.png"
+                  alt="Chill Cloud"
+                  width={160}
+                  height={160}
+                  className="w-full h-full object-contain opacity-70"
+                />
+              </div>
             </div>
 
             {showCustomImage ? (
@@ -81,7 +97,7 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
               >
                 <div className="relative w-full h-full">
                   <Image
-                    src={customImagePath || "/placeholder.svg"}
+                    src={customImagePath || "cloudbeautiful.png"}
                     alt="Custom reveal image"
                     fill
                     className="object-contain"
@@ -92,9 +108,9 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
                 </div>
               </motion.div>
             ) : (
-              // Default cloud animation
+              // Default cloud animation - replaced with chillcloud.png
               <>
-                {/* Left cloud - optimized with fewer elements and simpler animations */}
+                {/* Left cloud - replaced with chillcloud.png */}
                 <motion.div
                   className="absolute top-0 left-0 w-1/2 h-screen"
                   initial={{ x: 0 }}
@@ -103,19 +119,51 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
                   onAnimationComplete={handleAnimationComplete}
                 >
                   <div className="relative h-full w-full">
-                    <div className="absolute top-0 right-0 h-full w-full">
-                      {/* Simplified cloud structure with fewer divs */}
-                      <div className="absolute top-[10%] right-[5%] w-[90%] h-[80%] bg-white rounded-[50%] opacity-95 shadow-lg"></div>
-                      <div className="absolute top-[5%] right-[15%] w-[70%] h-[90%] bg-white rounded-[50%] opacity-95 shadow-lg"></div>
-                      <div className="absolute top-[40%] right-[5%] w-[30%] h-[30%] bg-white rounded-full opacity-90"></div>
-
-                      {/* Single shadow element */}
-                      <div className="absolute bottom-[10%] right-[10%] w-[80%] h-[10%] bg-gray-200 rounded-full opacity-30 blur-md"></div>
+                    <div className="absolute top-0 right-0 h-full w-full flex items-center justify-end">
+                      {/* Replaced with chillcloud.png */}
+                      <div className="relative w-[100%] h-[100%]">
+                        <Image
+                          src="/chillcloud.png"
+                          alt="Left Cloud"
+                          fill
+                          className="object-contain"
+                          style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.04))" }}
+                        />
+                      </div>
                     </div>
                   </div>
+                  {/* Bigger, more transparent left background cloud */}
+<div className="absolute top-[20%] right-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Left Cloud Background"
+    fill
+    className="object-contain opacity-40"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+<div className="absolute top-[-40%] right-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Left Cloud Background"
+    fill
+    className="object-contain opacity-40"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+<div className="absolute top-[40%] right-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Left Cloud Background"
+    fill
+    className="object-contain opacity-100"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+
                 </motion.div>
 
-                {/* Right cloud - optimized with fewer elements and simpler animations */}
+                {/* Right cloud - replaced with chillcloud.png */}
                 <motion.div
                   className="absolute top-0 right-0 w-1/2 h-screen"
                   initial={{ x: 0 }}
@@ -123,16 +171,48 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 2.5 }}
                 >
                   <div className="relative h-full w-full">
-                    <div className="absolute top-0 left-0 h-full w-full">
-                      {/* Simplified cloud structure with fewer divs */}
-                      <div className="absolute top-[10%] left-[5%] w-[90%] h-[80%] bg-white rounded-[50%] opacity-95 shadow-lg"></div>
-                      <div className="absolute top-[5%] left-[15%] w-[70%] h-[90%] bg-white rounded-[50%] opacity-95 shadow-lg"></div>
-                      <div className="absolute top-[40%] left-[5%] w-[30%] h-[30%] bg-white rounded-full opacity-90"></div>
-
-                      {/* Single shadow element */}
-                      <div className="absolute bottom-[10%] left-[10%] w-[80%] h-[10%] bg-gray-200 rounded-full opacity-30 blur-md"></div>
+                    <div className="absolute top-0 left-0 h-full w-full flex items-center">
+                      {/* Replaced with chillcloud.png */}
+                      <div className="relative w-[100%] h-[100%]">
+                        <Image
+                          src="/chillcloud.png"
+                          alt="Right Cloud"
+                          fill
+                          className="object-contain"
+                          style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.04))" }}
+                        />
+                      </div>
                     </div>
                   </div>
+                  {/* Bigger, more transparent right background cloud */}
+<div className="absolute top-[-20%] left-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Right Cloud Background"
+    fill
+    className="object-contain opacity-40"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+<div className="absolute top-[50%] left-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Right Cloud Background"
+    fill
+    className="object-contain opacity-100"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+<div className="absolute top-[40%] left-[-10%] w-[140%] h-[120%] z-0">
+  <Image
+    src="/chillcloud.png"
+    alt="Right Cloud Background"
+    fill
+    className="object-contain opacity-40"
+    style={{ filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.03))" }}
+  />
+</div>
+
                 </motion.div>
               </>
             )}
@@ -147,7 +227,7 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="relative h-16 w-16">
-                  <Image src="/logo.png" alt="AggieShare Logo" fill className="object-contain" />
+                  <Image src="hackercow.png" alt="AggieShare Logo" fill className="object-contain" />
                 </div>
                 <h1 className="text-5xl font-bold">
                   <span className="text-hackdavis-navy">Aggie</span>
@@ -199,8 +279,8 @@ export default function CloudReveal({ children, customImagePath }: CloudRevealPr
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: 2, ease: "easeInOut" }}
               >
-                <div className="relative w-20 h-20">
-                  <Image src="/mascots/cow.png" alt="UC Davis Cow" fill className="object-contain" />
+                <div className="relative w-40 h-40">
+                  <Image src="hackercow.png" alt="UC Davis Cow" fill className="object-contain" />
                 </div>
               </motion.div>
             )}

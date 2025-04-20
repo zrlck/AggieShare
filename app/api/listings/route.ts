@@ -34,7 +34,9 @@ export async function POST(req: Request) {
     
     const result = await db.collection("listings").insertOne({
       ...body,
-      createdAt: new Date(),
+        donorName: body.donorName,
+        donorEmail: body.donorEmail,
+        createdAt: new Date(),
     });
     
     return NextResponse.json({ 

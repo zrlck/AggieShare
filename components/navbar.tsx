@@ -32,7 +32,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-10 w-10">
-              <Image src="/logo.png" alt="AggieShare Logo" fill className="object-contain" />
+              <Image src="hackercow.png" alt="AggieShare Logo" fill className="object-contain" />
             </div>
             <span className="text-xl font-bold text-hackdavis-navy">
               Aggie<span className="text-white">Share</span>

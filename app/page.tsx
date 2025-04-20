@@ -4,7 +4,6 @@ import { ArrowRight, Gift, Leaf, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import CategoryGrid from "@/components/category-grid"
-import FeaturedItems from "@/components/featured-items"
 import HowItWorks from "@/components/how-it-works"
 
 export default function Home() {
@@ -104,19 +103,6 @@ export default function Home() {
               </Link>
             </div>
             <CategoryGrid />
-          </div>
-        </section>
-
-        {/* Featured Items */}
-        <section className="container px-4 md:px-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl text-hackdavis-navy">Recently Added</h2>
-              <Link href="/browse" className="text-hackdavis-navy hover:underline">
-                View all
-              </Link>
-            </div>
-            <FeaturedItems />
           </div>
         </section>
 
