@@ -189,7 +189,7 @@ export default function BrowsePage() {
                                     <Image
                                       src={
                                         campuses.find((c) => c.id === item.locationId)?.mascotImage ||
-                                        "/mascots/cow.png"
+                                        "hackercow.png"
                                       }
                                       alt="Campus mascot"
                                       fill
@@ -201,7 +201,7 @@ export default function BrowsePage() {
                               <CardContent className="p-4 flex-1 flex flex-col">
                                 <h3 className="font-semibold text-gray-900">{item.title}</h3>
                                 <Badge variant="secondary" className="mt-2">
-                                  {categories.find((c) => c.id === item.categoryId)?.name || "Unknown"}
+                                  {categories.find((c) => c.id === item.categoryId)?.name || "UC Davis"}
                                 </Badge>
                                 {item.donorName && (
                                   <div className="mt-2 text-xs text-gray-600">
@@ -212,7 +212,7 @@ export default function BrowsePage() {
                               <CardFooter className="flex items-center justify-between border-t p-4 text-sm text-gray-700">
                                 <div className="flex items-center gap-1">
                                   <MapPin className="h-3 w-3" />
-                                  {campuses.find((c) => c.id === item.locationId)?.name || "Unknown"}
+                                  {campuses.find((c) => c.id === item.locationId)?.name || "UC Davis"}
                                 </div>
                                 <div>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ""}</div>
                               </CardFooter>
