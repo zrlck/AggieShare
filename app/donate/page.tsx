@@ -20,21 +20,27 @@ import { campuses } from "@/data/campuses"
 import { analyzeImageWithGemini } from "@/lib/gemini-service";
 
 export default function DonatePage() {
-  // Component state and logic remains the same
+  // Form state
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isAnalyzed, setIsAnalyzed] = useState(false)
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null)
+  const [category, setCategory] = useState<string | null>(null)
   const [formEnabled, setFormEnabled] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [pickupInfo, setPickupInfo] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { selectedCampus } = useLocationStore()
   const { toast } = useToast()
 
+  // --- Image Handling and AI Analysis ---
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     setUploadError(null)
-
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
@@ -45,110 +51,161 @@ export default function DonatePage() {
     const reader = new FileReader()
     reader.onloadend = () => {
       setPreviewImage(reader.result as string)
+      setImageFile(file)
       analyzeImage(file)
     }
     reader.readAsDataURL(file)
   }
 
   const analyzeImage = async (file: File) => {
-    setIsAnalyzing(true);
-    setFormEnabled(false);
-    setIsAnalyzed(false);
-    
+    setIsAnalyzing(true)
+    setFormEnabled(false)
+    setIsAnalyzed(false)
+
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
       reader.onloadend = async () => {
-        // Get base64 string
-        const base64Data = reader.result as string;
-        
-        // Call Gemini API
-        const suggestedCategories = await analyzeImageWithGemini(base64Data);
-        
-        // Map the first suggested category to your category IDs
-        const firstCategory = suggestedCategories[0];
-        const categoryId = categories.find(c => c.name === firstCategory)?.id 
-          || categories[Math.floor(Math.random() * categories.length)].id;
-        
-        // Set the suggested category
-        setSuggestedCategory(categoryId);
-        
-        // Store all suggested categories if you want to display them
-        // You would need to add this state: const [allSuggestedCategories, setAllSuggestedCategories] = useState([]);
-        // setAllSuggestedCategories(suggestedCategories);
-        
-        setIsAnalyzing(false);
-        setIsAnalyzed(true);
-        setFormEnabled(true);
-        
+        const base64Data = reader.result as string
+        const suggestedCategories = await analyzeImageWithGemini(base64Data)
+        const firstCategory = suggestedCategories[0]
+        const categoryId = categories.find(c => c.name === firstCategory)?.id
+          || categories[Math.floor(Math.random() * categories.length)].id
+        setSuggestedCategory(categoryId)
+        setCategory(categoryId)
+        setIsAnalyzing(false)
+        setIsAnalyzed(true)
+        setFormEnabled(true)
         toast({
           title: "Image analyzed!",
           description: `We think this item belongs in the ${getCategoryDisplayName(categoryId)} category.`,
-        });
-      };
+        })
+      }
     } catch (error) {
-      console.error("Error analyzing image:", error);
-      setIsAnalyzing(false);
-      
-      // Fallback to random category on error
-      const categoryIds = categories.map((c) => c.id);
-      const randomCategory = categoryIds[Math.floor(Math.random() * categoryIds.length)];
-      setSuggestedCategory(randomCategory);
-      
-      setIsAnalyzed(true);
-      setFormEnabled(true);
-      
+      setIsAnalyzing(false)
+      const categoryIds = categories.map((c) => c.id)
+      const randomCategory = categoryIds[Math.floor(Math.random() * categoryIds.length)]
+      setSuggestedCategory(randomCategory)
+      setCategory(randomCategory)
+      setIsAnalyzed(true)
+      setFormEnabled(true)
       toast({
         title: "Analysis failed",
         description: "We couldn't analyze your image. Please select a category manually.",
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
 
   const getCategoryDisplayName = (categoryId: string): string => {
     const category = categories.find((c) => c.id === categoryId)
     return category ? category.name : categoryId
   }
 
+  // --- Form Submission ---
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!imageFile || !previewImage) {
+      toast({
+        title: "Missing image",
+        description: "Please upload an image.",
+        variant: "destructive",
+      })
+      return
+    }
+    if (!title || !description || !category || !pickupInfo) {
+      toast({
+        title: "Missing information",
+        description: "Please fill out all fields.",
+        variant: "destructive",
+      })
+      return
+    }
+    setIsSubmitting(true)
+    try {
+      // 1. Upload image and get URL
+      const uploadRes = await fetch("/api/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: previewImage }), // base64
+      })
+      const uploadData = await uploadRes.json()
+      if (!uploadData.url) throw new Error("Image upload failed")
+
+      // 2. Submit listing to API
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          categoryId: category,
+          locationId: selectedCampus,
+          imageUrl: uploadData.url,
+          pickupInfo,
+        }),
+      })
+      if (res.ok) {
+        toast({
+          title: "Donation listed!",
+          description: "Your item has been successfully listed.",
+        })
+        resetForm()
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create listing. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit donation. Please try again.",
+        variant: "destructive",
+      })
+    }
+    setIsSubmitting(false)
+  }
+
+  const handleCategorySelect = (val: string) => setCategory(val)
+
+  const resetForm = () => {
+    setPreviewImage(null)
+    setImageFile(null)
+    setSuggestedCategory(null)
+    setCategory(null)
+    setIsAnalyzed(false)
+    setFormEnabled(false)
+    setUploadError(null)
+    setTitle("")
+    setDescription("")
+    setPickupInfo("")
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  // --- Drag and Drop ---
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
   }
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
-
     setUploadError(null)
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0]
-
       if (file.size > 5 * 1024 * 1024) {
         setUploadError("File size exceeds 5MB limit")
         return
       }
-
       const reader = new FileReader()
       reader.onloadend = () => {
         setPreviewImage(reader.result as string)
+        setImageFile(file)
         analyzeImage(file)
       }
       reader.readAsDataURL(file)
-    }
-  }
-
-  const resetForm = () => {
-    setPreviewImage(null)
-    setSuggestedCategory(null)
-    setIsAnalyzed(false)
-    setFormEnabled(false)
-    setUploadError(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
     }
   }
 
@@ -161,10 +218,9 @@ export default function DonatePage() {
               <h1 className="text-3xl font-bold tracking-tight text-hackdavis-navy">Donate an Item</h1>
               <p className="text-hackdavis-navy">Share items you no longer need with your college community</p>
             </div>
-
             <Card className="border-hackdavis-blue/30">
               <CardContent className="p-6">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   {/* Image Upload */}
                   <div className="space-y-2">
                     <Label htmlFor="image" className="text-hackdavis-navy">
@@ -248,6 +304,7 @@ export default function DonatePage() {
                           variant="outline"
                           onClick={resetForm}
                           className="border-hackdavis-navy text-hackdavis-navy"
+                          type="button"
                         >
                           Remove Image & Start Over
                         </Button>
@@ -276,14 +333,18 @@ export default function DonatePage() {
                           <Label htmlFor="title" className="text-hackdavis-navy">
                             Item Title
                           </Label>
-                          <Input id="title" placeholder="e.g., Graphing Calculator, Winter Jacket" />
+                          <Input
+                            id="title"
+                            placeholder="e.g., Graphing Calculator, Winter Jacket"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                          />
                         </div>
-
                         <div className="space-y-2">
                           <Label htmlFor="category" className="text-hackdavis-navy">
                             Category
                           </Label>
-                          <Select defaultValue={suggestedCategory || undefined}>
+                          <Select value={category || undefined} onValueChange={handleCategorySelect}>
                             <SelectTrigger id="category" className={suggestedCategory ? "border-green-500" : ""}>
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
@@ -310,6 +371,8 @@ export default function DonatePage() {
                             id="description"
                             placeholder="Describe your item, including condition and any other relevant details"
                             rows={4}
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
                           />
                         </div>
 
@@ -317,8 +380,8 @@ export default function DonatePage() {
                           <Label htmlFor="location" className="text-hackdavis-navy">
                             Campus Location
                           </Label>
-                          <Select defaultValue={selectedCampus.toLowerCase().replace(/\s+/g, "-")}>
-                            <SelectTrigger id="location" disabled>
+                          <Select value={selectedCampus} disabled>
+                            <SelectTrigger id="location">
                               <SelectValue placeholder="Select your campus" />
                             </SelectTrigger>
                             <SelectContent>
@@ -342,13 +405,17 @@ export default function DonatePage() {
                             id="pickup-info"
                             placeholder="Provide details about where and when the item can be picked up"
                             rows={2}
+                            value={pickupInfo}
+                            onChange={e => setPickupInfo(e.target.value)}
                           />
                         </div>
 
                         <Button
                           type="submit"
                           className="w-full bg-hackdavis-navy hover:bg-hackdavis-navy/80 text-white"
+                          disabled={isSubmitting}
                         >
+                          {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                           Submit Donation
                         </Button>
                       </motion.div>

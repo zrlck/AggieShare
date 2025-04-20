@@ -1,8 +1,6 @@
 "use client"
 
 import PageLayout from "../page-layout"
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -17,54 +15,62 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useFilterStore } from "@/lib/store"
 import { categories } from "@/components/category-grid"
 import { campuses } from "@/data/campuses"
-import { items } from "@/data/items"
+
+// TypeScript interface for MongoDB listing
+interface ListingItem {
+  _id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  categoryId: string;
+  locationId: string;
+  createdAt: string;
+}
 
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [viewMode, setViewMode] = useState("grid")
-  const { categoryFilter, locationFilter, setCategoryFilter, setLocationFilter, resetFilters } = useFilterStore()
-  const [filteredItems, setFilteredItems] = useState(items)
+  const { categoryFilter, locationFilter, setCategoryFilter, setLocationFilter } = useFilterStore()
+  const [allItems, setAllItems] = useState<ListingItem[]>([])
+  const [filteredItems, setFilteredItems] = useState<ListingItem[]>([])
 
-  // Apply filters when they change
+  // Handlers
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
+  const handleCategoryChange = (val: string) => setCategoryFilter(val === "all" ? null : val);
+  const handleLocationChange = (val: string) => setLocationFilter(val === "all" ? null : val);
+  const clearFilters = () => {
+    setCategoryFilter(null);
+    setLocationFilter(null);
+    setSearchTerm("");
+  };
+
+  // Fetch items from API
   useEffect(() => {
-    let result = items
+    fetch("/api/listings")
+      .then(res => res.json())
+      .then(data => setAllItems(data))
+      .catch(() => setAllItems([]))
+  }, [])
+
+  // Filtering logic
+  useEffect(() => {
+    let result = allItems;
 
     if (searchTerm) {
       result = result.filter(
         (item) =>
-          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+          item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-
-    if (categoryFilter) {
-      result = result.filter((item) => item.categoryId === categoryFilter)
+    if (categoryFilter && categoryFilter !== "all") {
+      result = result.filter((item) => item.categoryId === categoryFilter);
     }
-
-    if (locationFilter) {
-      result = result.filter((item) => item.locationId === locationFilter)
+    if (locationFilter && locationFilter !== "all") {
+      result = result.filter((item) => item.locationId === locationFilter);
     }
-
-    setFilteredItems(result)
-  }, [searchTerm, categoryFilter, locationFilter])
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
-
-  const handleCategoryChange = (value: string) => {
-    setCategoryFilter(value === "all" ? null : value)
-  }
-
-  const handleLocationChange = (value: string) => {
-    setLocationFilter(value === "all" ? null : value)
-  }
-
-  const clearFilters = () => {
-    resetFilters()
-    setSearchTerm("")
-  }
+    setFilteredItems(result);
+  }, [allItems, searchTerm, categoryFilter, locationFilter]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -76,7 +82,7 @@ export default function BrowsePage() {
     },
   }
 
-  const item = {
+  const itemVariant = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
   }
@@ -89,9 +95,6 @@ export default function BrowsePage() {
             <h1 className="text-3xl font-bold tracking-tight text-hackdavis-navy">Browse Items</h1>
             <p className="text-hackdavis-navy">Discover free items available in your college community</p>
           </div>
-
-          {/* Rest of the component remains the same */}
-          {/* ... */}
 
           {/* Filters and Search */}
           <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-end">
@@ -221,12 +224,12 @@ export default function BrowsePage() {
                     animate="show"
                   >
                     {filteredItems.map((item) => (
-                      <motion.div key={item.id} variants={item} layout whileHover={{ y: -5 }}>
-                        <Link href={`/items/${item.id}`}>
+                      <motion.div key={item._id} variants={itemVariant} layout whileHover={{ y: -5 }}>
+                        <Link href={`/items/${item._id}`}>
                           <Card className="overflow-hidden transition-all hover:shadow-md">
                             <div className="aspect-square relative">
                               <Image
-                                src={item.image || "/placeholder.svg"}
+                                src={item.imageUrl || "/placeholder.svg"}
                                 alt={item.title}
                                 fill
                                 className="object-cover"
@@ -247,15 +250,15 @@ export default function BrowsePage() {
                             <CardContent className="p-4">
                               <h3 className="font-semibold">{item.title}</h3>
                               <Badge variant="secondary" className="mt-2">
-                                {item.category}
+                                {categories.find((c) => c.id === item.categoryId)?.name || "Unknown"}
                               </Badge>
                             </CardContent>
                             <CardFooter className="flex items-center justify-between border-t p-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <MapPin className="h-3 w-3" />
-                                {item.location}
+                                {campuses.find((c) => c.id === item.locationId)?.name || "Unknown"}
                               </div>
-                              <div>{item.date}</div>
+                              <div>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ""}</div>
                             </CardFooter>
                           </Card>
                         </Link>
@@ -293,13 +296,13 @@ export default function BrowsePage() {
                 {filteredItems.length > 0 ? (
                   <motion.div className="flex flex-col gap-4" variants={container} initial="hidden" animate="show">
                     {filteredItems.map((item) => (
-                      <motion.div key={item.id} variants={item} layout whileHover={{ y: -5 }}>
-                        <Link href={`/items/${item.id}`}>
+                      <motion.div key={item._id} variants={itemVariant} layout whileHover={{ y: -5 }}>
+                        <Link href={`/items/${item._id}`}>
                           <Card className="overflow-hidden transition-all hover:shadow-md">
                             <div className="flex flex-col md:flex-row">
                               <div className="relative h-48 w-full md:h-auto md:w-48">
                                 <Image
-                                  src={item.image || "/placeholder.svg"}
+                                  src={item.imageUrl || "/placeholder.svg"}
                                   alt={item.title}
                                   fill
                                   className="object-cover"
@@ -321,15 +324,17 @@ export default function BrowsePage() {
                               <div className="flex flex-1 flex-col p-4">
                                 <div className="mb-2 flex items-center justify-between">
                                   <h3 className="font-semibold">{item.title}</h3>
-                                  <Badge variant="secondary">{item.category}</Badge>
+                                  <Badge variant="secondary">
+                                    {categories.find((c) => c.id === item.categoryId)?.name || "Unknown"}
+                                  </Badge>
                                 </div>
                                 <p className="mb-4 text-sm text-muted-foreground">{item.description}</p>
                                 <div className="mt-auto flex items-center justify-between text-sm text-muted-foreground">
                                   <div className="flex items-center gap-1">
                                     <MapPin className="h-3 w-3" />
-                                    {item.location}
+                                    {campuses.find((c) => c.id === item.locationId)?.name || "Unknown"}
                                   </div>
-                                  <div>{item.date}</div>
+                                  <div>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ""}</div>
                                 </div>
                               </div>
                             </div>
