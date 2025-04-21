@@ -15,18 +15,17 @@ export default function AboutPage() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                    About Aggie<span className="text-purple-500">Share</span>
+                    About Aggie<span className="text-blue-300">Share</span>
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                    We're on a mission to create a more sustainable and connected college community through the sharing
-                    of essential goods.
+                  We're creating a stronger college community by making it simple to share essential items with others—no cost, just support.
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-center">
                 <div className="relative h-[300px] w-[300px] md:h-[400px] md:w-[400px]">
                   <Image
-                    src="/placeholder.svg?height=400&width=400"
+                    src="XD1.jpg"
                     alt="AggieShare team"
                     fill
                     className="object-cover rounded-lg"
@@ -42,9 +41,7 @@ export default function AboutPage() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Our Mission</h2>
             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-              AggieShare was created at HackDavis with a simple goal: to reduce waste and help college students access
-              essential items without financial burden. We believe in the power of community sharing to create a more
-              sustainable and supportive campus environment.
+            AggieShare was created at the HackDavis 2025 with a simple goal:  reduce waste and help college students access essential items without financial burden. We believe in the power of community sharing to create a more sustainable and supportive campus environment, and the most important part - it's free!
             </p>
           </div>
         </section>
@@ -92,19 +89,13 @@ export default function AboutPage() {
               <h2 className="mb-8 text-center text-3xl font-bold tracking-tight md:text-4xl">Our Story</h2>
               <div className="space-y-4 text-lg">
                 <p>
-                  AggieShare began as a hackathon project at HackDavis, where a team of students noticed the waste
-                  created at the end of each academic year. Perfectly good items were being discarded as students moved
-                  out of dorms and apartments.
+                AggieShare was born in just 12 hours during HackDavis—an idea sparked by a simple observation: at the end of every school year, so many usable items go to waste while others on campus struggle to afford everyday essentials.
                 </p>
                 <p>
-                  At the same time, many students were struggling to afford essential items for their education and
-                  daily life. We saw an opportunity to connect these two problems with one solution: a free donation
-                  marketplace specifically for college communities.
+                We realized we could bridge that gap with a free donation platform made just for college students. What started as a quick weekend project turned into something we’re truly proud of.
                 </p>
                 <p>
-                  What started as a weekend project has grown into a platform serving the UC Davis campus, with plans to
-                  expand to other UC campuses. Our cute cow mascots represent our commitment to creating a friendly,
-                  accessible platform for all students.
+                Thank you to everyone who supported us during HackDavis and believed in our vision. With our friendly cow mascots by our side, we’re excited to keep growing and helping students—starting here at UC Davis and hopefully beyond.
                 </p>
               </div>
             </div>
