@@ -89,7 +89,11 @@ export default function AboutPage() {
               <h2 className="mb-8 text-center text-3xl font-bold tracking-tight md:text-4xl">Our Story</h2>
               <div className="space-y-4 text-lg">
                 <p>
+<<<<<<< HEAD
                 AggieShare was born in just 12 hours during HackDavis—an idea sparked by a simple observation: at the end of every school year, so many usable items go to waste while others on campus struggle to afford everyday essentials.
+=======
+                AggieShare was born in just 12 hours during HackDavis 2025—an idea sparked by a simple observation: at the end of every school year, so many usable items go to waste while others on campus struggle to afford everyday essentials.
+>>>>>>> 9d24a9793ec3e38da98ecb527d2421fa3b6acd2a
                 </p>
                 <p>
                 We realized we could bridge that gap with a free donation platform made just for college students. What started as a quick weekend project turned into something we’re truly proud of.

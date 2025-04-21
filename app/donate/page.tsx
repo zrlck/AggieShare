@@ -33,6 +33,8 @@ export default function DonatePage() {
   const [description, setDescription] = useState("")
   const [pickupInfo, setPickupInfo] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [donorName, setDonorName] = useState("")
+  const [donorEmail, setDonorEmail] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { selectedCampus } = useLocationStore()
   const { toast } = useToast()
@@ -113,7 +115,7 @@ export default function DonatePage() {
       })
       return
     }
-    if (!title || !description || !category || !pickupInfo) {
+    if (!title || !description || !category || !pickupInfo || !donorName || !donorEmail) {
       toast({
         title: "Missing information",
         description: "Please fill out all fields.",
@@ -143,6 +145,8 @@ export default function DonatePage() {
           locationId: selectedCampus,
           imageUrl: uploadData.url,
           pickupInfo,
+          donorName,
+          donorEmail,
         }),
       })
       if (res.ok) {
@@ -181,6 +185,8 @@ export default function DonatePage() {
     setTitle("")
     setDescription("")
     setPickupInfo("")
+    setDonorName("")
+    setDonorEmail("")
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
@@ -318,6 +324,36 @@ export default function DonatePage() {
                         </Label>
                       )}
                     </div>
+                  </div>
+
+                  {/* Donor Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="donorName" className="text-hackdavis-navy">
+                      Your Name or Username
+                    </Label>
+                    <Input
+                      id="donorName"
+                      type="text"
+                      placeholder="e.g. Alex Chen"
+                      value={donorName}
+                      onChange={e => setDonorName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {/* Donor Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="donorEmail" className="text-hackdavis-navy">
+                      Your Email (for contact)
+                    </Label>
+                    <Input
+                      id="donorEmail"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={donorEmail}
+                      onChange={e => setDonorEmail(e.target.value)}
+                      required
+                    />
                   </div>
 
                   {/* Item Details - Only shown after image analysis */}
